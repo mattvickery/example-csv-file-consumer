@@ -28,8 +28,7 @@ public class SpringBatchJobExecutor {
         try {
             final JobExecution execution = ctx.getJobLauncher().run(ctx.getJob(), ctx.getJobParams());
             LOG.info("JobExecution exit status: {}", execution.getStatus());
-            final List<String> exceptionMessages =
-                    collateExceptionMessages(ctx.getJob().getName(), execution);
+            final List<String> exceptionMessages = collateExceptionMessages(ctx.getJob().getName(), execution);
             return ctx.executionResponseFrom(execution.getStatus(), exceptionMessages);
         } catch (final ItemStreamException e) {
             if (e.getMessage().contains("Failed to initialize the reader"))

@@ -15,11 +15,6 @@ public class ConstraintViolationException extends RuntimeException {
         super(violationSummary);
     }
 
-    public ConstraintViolationException(final List<ConstraintViolationSummary> violationSummaries) {
-        super("Constraint Violations");
-        this.violationSummaries = violationSummaries;
-    }
-
     public List<ConstraintViolationException> convertSummariesToCollection() {
 
         final List<ConstraintViolationException> exceptions = new ArrayList<>(violationSummaries.size());

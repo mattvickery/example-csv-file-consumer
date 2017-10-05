@@ -81,6 +81,4 @@
     <bean id="cleanUpExitStatusListener"
           class="com.gds.batch.CleanUpExitStatusListener" scope="step"/>
 
-    <bean id="noOp" class="com.gds.batch.tasklet.NoOpTasklet"/>
-
 </beans>

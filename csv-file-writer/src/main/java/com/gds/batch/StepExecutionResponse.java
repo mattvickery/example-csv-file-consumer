@@ -14,10 +14,6 @@ public class StepExecutionResponse {
     private final BatchStatus batchStatus;
     private final List<String> exceptionMessages;
 
-    public StepExecutionResponse(final BatchStatus batchStatus) {
-        this(batchStatus, null);
-    }
-
     public StepExecutionResponse(final BatchStatus batchStatus, final List<String> exceptionMessages) {
         this.batchStatus = batchStatus;
         this.exceptionMessages = exceptionMessages;
