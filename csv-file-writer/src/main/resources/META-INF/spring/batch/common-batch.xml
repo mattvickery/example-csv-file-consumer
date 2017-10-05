@@ -1,0 +1,86 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+    <jdbc:initialize-database data-source="dataSource">
+        <jdbc:script location="classpath*:org/springframework/batch/core/schema-drop-h2.sql" />
+        <jdbc:script location="classpath*:org/springframework/batch/core/schema-h2.sql" />
+    </jdbc:initialize-database>
+
+    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="databaseType" value="h2"/>
+    </bean>
+
+    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher"
+          p:jobRepository-ref="jobRepository"/>
+
+    <util:properties id="batchParameters" location="classpath*:properties/application.properties"/>
+
+    <bean id="placeholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="false" />
+        <property name="localOverride" value="false" />
+        <property name="locations">
+            <list>
+                <value>classpath:properties/application.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource"
+          p:url="${db.url}" p:user="${db.username}" p:password="${db.password}"/>
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="packagesToScan" value="com.gds.*" />
+        <property name="persistenceUnitName" value="csv-file-writer"/>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="generateDdl" value="${db.generateDdl}" />
+                <property name="database" value="${db.type}" />
+            </bean>
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <!--<prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>-->
+                <prop key="hibernate.dialect">${db.dialect}</prop>
+                <prop key="hibernate.show_sql">${db.show.sql}</prop>
+                <prop key="hibernate.format_sql">${db.format.sql}</prop>
+                <prop key="hibernate.hbm2ddl.auto">${db.schema.auto}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
+
+    <bean id="batchJobExecutor" class="com.gds.batch.SpringBatchJobExecutor"/>
+
+    <bean id="writer" class="org.springframework.batch.item.database.JpaItemWriter"
+          p:entityManagerFactory-ref="entityManagerFactory"/>
+
+    <bean id="entityValidationProcessor" class="com.gds.entity.EntityValidator"/>
+
+    <bean id="recordSeparatorPolicy"
+          class="org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy"/>
+
+    <bean id="validationExceptionListener" class="com.gds.batch.listener.ValidationExceptionListener"
+          scope="step"/>
+
+    <bean id="springBatchStepStopWatchListener"
+          class="com.gds.batch.listener.SpringBatchTimerListener" scope="prototype"/>
+
+    <bean id="cleanUpExitStatusListener"
+          class="com.gds.batch.CleanUpExitStatusListener" scope="step"/>
+
+    <bean id="noOp" class="com.gds.batch.tasklet.NoOpTasklet"/>
+
+</beans>
