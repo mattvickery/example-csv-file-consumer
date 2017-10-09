@@ -1,6 +1,6 @@
 # example-csv-file-consumer
-Example CSV -> SI -> SB
+Example: Spring Boot, CSV -> Spring Integration -> Spring Batch
 
-An example of moving between CSV and database entity using Spring Integration to restrict processing until a collection of new CSV files has arrived coupled with Spring Batch to parse, validate and store (JPA) the entities.
+An example of a Spring Boot application moving a CSV into a database entity using Spring Integration to restrict processing until a collection of new CSV files has arrived coupled with Spring Batch to parse, validate and store (JPA) the entities.
 
-Some useful infrastructure code that could be abstracted into a Spring Batch executor utility..
+Database: H2
