@@ -10,7 +10,7 @@
 
     <import resource="repositories-context.xml"/>
     <import resource="common-batch.xml"/>
-    <import resource="arch-nuc-rec-writer.xml"/>
-    <import resource="nuc-rec-writer.xml"/>
+    <import resource="customer-writer.xml"/>
+    <import resource="product-writer.xml"/>
 
 </beans>

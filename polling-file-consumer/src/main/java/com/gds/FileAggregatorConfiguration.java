@@ -52,7 +52,7 @@ public class FileAggregatorConfiguration {
 
     private static final String INBOUND_FILE_PATH_NAME = "/tmp";
     private static final String REGISTERED_EXTENSION = ".csv";
-    private static final String REGISTERED_PREFIX = "archer";
+    private static final String REGISTERED_PREFIX = "gds-";
 
     private static final String CORRELATION_ID_HEADER_KEY = "correlationId";
     private static final String FILE_NAME_HEADER_KEY = "fileName";
@@ -132,15 +132,15 @@ public class FileAggregatorConfiguration {
             messages.forEach(message -> {
                 final String fileName = (String) message.getHeaders().get(FILE_NAME_HEADER_KEY);
                 final SpringBatchJobExecutionContext executionContext;
-                if (fileName.toLowerCase().startsWith(REGISTERED_PREFIX + "1")) {
+                if (fileName.toLowerCase().startsWith(REGISTERED_PREFIX + "customer")) {
                     // Better to look this up as a bean instead.
                     executionContext
-                            = new SpringBatchJobExecutionContext(new FileSystemResource((File) message.getPayload()), "archNucRec");
+                            = new SpringBatchJobExecutionContext(new FileSystemResource((File) message.getPayload()), "customer");
                     executionContext.resolve(ctx);
-                } else if (fileName.toLowerCase().startsWith(REGISTERED_PREFIX + "2")) {
+                } else if (fileName.toLowerCase().startsWith(REGISTERED_PREFIX + "product")) {
                     // Better to look this up as a bean instead.
                     executionContext
-                            = new SpringBatchJobExecutionContext(new FileSystemResource((File) message.getPayload()), "nucRec");
+                            = new SpringBatchJobExecutionContext(new FileSystemResource((File) message.getPayload()), "product");
                     executionContext.resolve(ctx);
                 } else {
                     throw new IllegalStateException("Unexpected file consumed for processing.");

@@ -1,7 +1,7 @@
 package com.gds.repo;
 
 import com.gds.db.AbstractMutatingEntityRepository;
-import com.gds.entity.NucleusRec;
+import com.gds.entity.Product;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -14,10 +14,10 @@ import static org.springframework.util.Assert.notNull;
  * @since 03/10/2017
  */
 @Repository
-public class JpaNucRecRepository extends AbstractMutatingEntityRepository<NucleusRec, Long> {
+public class JpaProductRepository extends AbstractMutatingEntityRepository<Product, Long> {
 
-    public JpaNucRecRepository() {
-        super(NucleusRec.class, Long.class);
+    public JpaProductRepository() {
+        super(Product.class, Long.class);
     }
 
     @PersistenceContext(name = "csv-file-writer")

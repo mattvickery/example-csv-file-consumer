@@ -5,8 +5,8 @@
              version="2.0">
 
     <persistence-unit name="csv-file-writer" transaction-type="RESOURCE_LOCAL">
-        <class>com.gds.entity.ArchNucRec</class>
-        <class>com.gds.entity.NucleusRec</class>
+        <class>com.gds.entity.Customer</class>
+        <class>com.gds.entity.Product</class>
     </persistence-unit>
 
 </persistence>
