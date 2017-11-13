@@ -22,14 +22,14 @@
     <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher"
           p:jobRepository-ref="jobRepository"/>
 
-    <util:properties id="batchParameters" location="classpath*:properties/application.properties"/>
+    <util:properties id="batchParameters" location="classpath*:properties/csv-file-writer.properties"/>
 
     <bean id="placeholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="ignoreUnresolvablePlaceholders" value="false" />
         <property name="localOverride" value="false" />
         <property name="locations">
             <list>
-                <value>classpath:properties/application.properties</value>
+                <value>classpath:properties/csv-file-writer.properties</value>
             </list>
         </property>
     </bean>

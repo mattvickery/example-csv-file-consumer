@@ -4,9 +4,11 @@ import com.gds.batch.SpringBatchJobExecutionContext;
 import com.gds.batch.SpringBatchJobExecutor;
 import com.gds.batch.StepExecutionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -48,11 +50,15 @@ import static org.springframework.util.Assert.state;
  */
 @ImportResource("classpath:META-INF/spring/batch/csv-file-writer.xml")
 @EnableIntegration
+@PropertySource("classpath:properties/polling-file-consumer.properties")
 public class FileAggregatorConfiguration {
 
-    private static final String INBOUND_FILE_PATH_NAME = "/tmp";
-    private static final String REGISTERED_EXTENSION = ".csv";
-    private static final String REGISTERED_PREFIX = "gds-";
+    @Value("${inbound.path.dir}")
+    private String inboundFilePathName;
+    @Value("${inbound.registered.extension}")
+    private String registeredExtension;
+    @Value("${inbound.registered.prefix}")
+    private String registeredPrefix;
 
     private static final String CORRELATION_ID_HEADER_KEY = "correlationId";
     private static final String FILE_NAME_HEADER_KEY = "fileName";
@@ -77,12 +83,12 @@ public class FileAggregatorConfiguration {
     public MessageSource<File> fileSystemMessageSource() {
 
         final FileReadingMessageSource fileReadingMessageSource = new FileReadingMessageSource();
-        fileReadingMessageSource.setDirectory(new File(INBOUND_FILE_PATH_NAME));
+        fileReadingMessageSource.setDirectory(new File(inboundFilePathName));
         fileReadingMessageSource.setFilter(new CompositeFileListFilter<File>()
                 .addFilter(new AcceptOnceFileListFilter<>())
                 .addFilter(files -> Arrays.asList(files).stream()
-                        .filter(f -> f.getName().toLowerCase().endsWith(REGISTERED_EXTENSION))
-                        .filter(f -> f.getName().toLowerCase().startsWith(REGISTERED_PREFIX))
+                        .filter(f -> f.getName().toLowerCase().endsWith(registeredExtension))
+                        .filter(f -> f.getName().toLowerCase().startsWith(registeredPrefix))
                         .collect(Collectors.toList())));
         fileReadingMessageSource.setScanEachPoll(true);
         return fileReadingMessageSource;
@@ -111,6 +117,7 @@ public class FileAggregatorConfiguration {
                 new HeaderAttributeCorrelationStrategy(CORRELATION_ID_HEADER_KEY),
                 group -> group.getMessages().size() == 2);
         handler.setOutputChannelName("loggerChannel");
+        handler.setExpireGroupsUponCompletion(true);
         return handler;
     }
 
@@ -132,12 +139,12 @@ public class FileAggregatorConfiguration {
             messages.forEach(message -> {
                 final String fileName = (String) message.getHeaders().get(FILE_NAME_HEADER_KEY);
                 final SpringBatchJobExecutionContext executionContext;
-                if (fileName.toLowerCase().startsWith(REGISTERED_PREFIX + "customer")) {
+                if (fileName.toLowerCase().startsWith(registeredPrefix + "customer")) {
                     // Better to look this up as a bean instead.
                     executionContext
                             = new SpringBatchJobExecutionContext(new FileSystemResource((File) message.getPayload()), "customer");
                     executionContext.resolve(ctx);
-                } else if (fileName.toLowerCase().startsWith(REGISTERED_PREFIX + "product")) {
+                } else if (fileName.toLowerCase().startsWith(registeredPrefix + "product")) {
                     // Better to look this up as a bean instead.
                     executionContext
                             = new SpringBatchJobExecutionContext(new FileSystemResource((File) message.getPayload()), "product");
@@ -148,7 +155,7 @@ public class FileAggregatorConfiguration {
                 final StepExecutionResponse response = springBatchJobExecutor.execute(executionContext);
                 System.out.println(response.getExceptionMessages().stream().collect(Collectors.joining(">>")));
             });
-            return (MessageGroupProcessor) group1 -> "group processing completed";
+            return (MessageGroupProcessor) mgp -> "group processing completed";
         };
     }
 

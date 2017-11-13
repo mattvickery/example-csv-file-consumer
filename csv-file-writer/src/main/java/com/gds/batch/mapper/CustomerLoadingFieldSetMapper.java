@@ -15,10 +15,10 @@ public class CustomerLoadingFieldSetMapper implements FieldSetMapper<Customer> {
     public Customer mapFieldSet(final FieldSet fieldSet) throws BindException {
 
         final Customer entity = new Customer();
-        entity.setName(fieldSet.readString("NAME"))
-                .setEmailAddress(fieldSet.readString("EMAIL_ADDRESS"))
-                .setCountry(fieldSet.readString("COUNTRY"))
-                .setStatus(fieldSet.readString("STATUS"));
+        entity.setName(fieldSet.readString("name"))
+                .setEmailAddress(fieldSet.readString("email_address"))
+                .setCountry(fieldSet.readString("country"))
+                .setStatus(fieldSet.readString("status"));
         return entity;
     }
 }
